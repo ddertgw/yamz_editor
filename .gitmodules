@@ -1,0 +1,3 @@
+[submodule "external/yamz_engine"]
+	path = external/yamz_engine
+	url = https://github.com/ddertgw/yamz_engine
