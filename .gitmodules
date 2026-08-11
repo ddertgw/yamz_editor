@@ -1,3 +1,6 @@
 [submodule "external/yamz_engine"]
 	path = external/yamz_engine
 	url = https://github.com/ddertgw/yamz_engine
+[submodule "external/ImGui"]
+	path = external/ImGui
+	url = https://github.com/ocornut/imgui.git

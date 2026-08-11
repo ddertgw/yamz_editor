@@ -1,4 +1,5 @@
 #include <yamz_engine/yamz.hpp>
+#include <yamz_editor/imgui_helper.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <system_error>
@@ -145,7 +146,7 @@ class YamzEditor : public yamz_core::Application_GL {
         );
     }
     
-    yamz_core::utils::ImGuitor imguitor_;
+    yamz_editor::ImGuitor imguitor_;
 
     std::unique_ptr<yamz_core::ShaderProgram> p_shaders_;
     //std::unique_ptr<VertexBuffer> p_points_vbo;
