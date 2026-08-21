@@ -36,7 +36,7 @@ public:
         ImGui_ImplOpenGL3_Init();
     }
 
-    void on_update(float (&v)[3], float& v2, float (&v3)[3], float (&v4)[3], float (&v5)[3], bool &v6) {
+    void on_update(float (&v)[3], float (&v2)[3], float (&v3)[3], float (&v4)[3], float (&v5)[3], bool &v6) {
         int w, h;
         glfwGetWindowSize(p_window_, &w, &h);
         // Start the Dear ImGui frame
@@ -51,7 +51,7 @@ public:
         ImGui::Begin("Yammers");
     
         ImGui::SliderFloat3("scale", v, 0.f, 2.f);
-        ImGui::SliderFloat("rotate", &v2, 0.f, 360.f);
+        ImGui::SliderFloat3("rotate", v2, 0.f, 360.f);
         ImGui::SliderFloat3("translation", v3, -1.f, 1.f);
         ImGui::SliderFloat3("camera_pos", v4, -10.f, 10.f);
         ImGui::SliderFloat3("camera_rotation", v5, 0.f, 360.f);

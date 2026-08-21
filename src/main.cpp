@@ -1,61 +1,111 @@
 #include <yamz_engine/yamz.hpp>
-#include <yamz_editor/imgui_helper.hpp>
+//#include <yamz_editor/imgui_helper.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <system_error>
+#include <yamz_engine/detail/cams/camera2.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-// settings
-constexpr unsigned int SCR_WIDTH = 800;
-constexpr unsigned int SCR_HEIGHT = 600;
+constexpr unsigned int SCR_WIDTH = 1920;
+constexpr unsigned int SCR_HEIGHT = 1080;
 
-constexpr GLfloat points[] = {
-     0.0f,  0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-    -0.5f,  -0.5f, 0.0f 
-};
-
-constexpr GLfloat colors[] = {
-    1.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f
-};
-
-constexpr GLfloat positions_colors[] = {
-    //positions             //colors
-     0.0f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f
-};
-
-constexpr GLfloat positions_colors2[] = {
-    -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,
-     0.5f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
+constexpr GLfloat vertices[] = {
+    // Позиции          // Цвета             // Текстурные координаты
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Верхний правый
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Нижний правый
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Нижний левый
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Верхний левый
 };
 
 constexpr GLuint indices[] = {
-    0, 1, 2, 3, 2, 1
+    0, 1, 3, 1, 2, 3
 };
+
+float cube[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
+glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
+};
+
 const char* vertex_shader_src =
     R"( 
         #version 460
         layout(location = 0) in vec3 vertex_position;
-        layout(location = 1) in vec3 vertex_color;
-        out vec3 color;
+        layout (location = 1) in vec2 texCoord;
+
+        out vec2 TexCoord;
+
+        uniform mat4 model;
         uniform mat4 transformation_matrix;
+
         void main() {
-            color = vertex_color;
-            gl_Position = transformation_matrix * vec4(vertex_position, 1.0);
+            gl_Position = transformation_matrix * model * vec4(vertex_position, 1.0);
+            TexCoord = texCoord;
         }
     )";
 const char* fragment_shader_src =
     R"(
         #version 460
-        in vec3 color;
+
+        in vec2 TexCoord;
+
+        uniform sampler2D ourTexture;
+
         out vec4 frag_color;
+
         void main() {
-            frag_color = vec4(color, 1.0);
+            frag_color = texture(ourTexture, TexCoord);
         }
     )";
 
@@ -63,109 +113,136 @@ class YamzEditor : public yamz_core::Application_GL {
 
     void user_init() final {
         using namespace yamz_core;
-        imguitor_.init(up_window_->get_raw_window());
+
+        glfwSetInputMode(up_window_->get_raw_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        dispatcher_.set_listener<EventKeyInput>(
+            [this] (EventKeyInput& e) {
+                if (e.key >= 0 && e.key < 1024) {
+                    if (e.action == GLFW_PRESS)
+                        keys_[e.key] = true;
+                    else if (e.action == GLFW_RELEASE)
+                        keys_[e.key] = false;
+                }
+            }
+        );
+
+        dispatcher_.set_listener<EventMouseInput>(
+            [this] (EventMouseInput& e) {
+                static bool firstMouse = true;
+                if(firstMouse) {
+                    lastX_ = e.x_pos;
+                    lastY_ = e.y_pos;
+                    firstMouse = false;
+                }
+
+                float xoffset = static_cast<float>(e.x_pos - lastX_);
+                float yoffset = lastY_ - e.y_pos; 
+                lastX_ = e.x_pos;
+                lastY_ = e.y_pos;
+            
+                cam.mouse_move(xoffset, yoffset);
+            }
+        );
+
+        dispatcher_.set_listener<EventScrollInput>(
+            [this] (EventScrollInput& e) {
+                float new_fov = cam.get_fov() -  static_cast<GLfloat>(e.y_offset);
+                if(new_fov <= 1.0f)
+                    new_fov = 1.0f;
+                if(new_fov >= 80.0f)
+                    new_fov = 80.0f;
+                cam.set_fov(new_fov);
+            }
+        );
+
+        dispatcher_.set_listener<EventResizeWindow>(
+            [this] (EventResizeWindow& e) {
+                cam.set_width(e.width);
+                cam.set_height(e.height);
+            }
+        );
+
+        glEnable(GL_DEPTH_TEST);
+
+        //imguitor_.init(up_window_->get_raw_window());
         p_shaders_ = std::make_unique<ShaderProgram>(vertex_shader_src, fragment_shader_src);
         
         BufferLayout bf {
             ShaderDataType::Float3,
-            ShaderDataType::Float3
+            ShaderDataType::Float2
         };
 
         p_pos_colors_vbo_ = std::make_unique<VertexBuffer>(
-              positions_colors2
-            , sizeof(positions_colors2)
+              cube
+            , sizeof(cube)
             , bf
             , Usage::Static
         );
-        p_index_buffer_ = std::make_unique<ElementBuffer>(
-              indices
-            , sizeof(indices) / sizeof(GLuint)
-            , Usage::Static
-        );
+
         p_vao_ = std::make_unique<VertexArray>();
         p_vao_->add_buffer(*p_pos_colors_vbo_);
-        p_vao_->set_element_buffer(*p_index_buffer_);
 
+        p_texture_ = std::make_unique<Texture2D>("texture.png", true);
+        p_texture_->bind(0);
     }
 
     void on_update() final {
         using namespace yamz_core;
 
-        glClearColor(0.33f, 0.33f, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.13f, 0.13f, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         p_shaders_->bind();
 
-        glm::mat4 scale_matrix(
-            scale_[0],   0,          0,          0,
-            0,          scale_[1],   0,          0,
-            0,          0,          scale_[2],   0,
-            0,          0,          0,          1
-        );
-
-        float rotate_in_radians = glm::radians(rotate_);
-        glm::mat4 rotate_matrix(
-            cos(rotate_in_radians),     sin(rotate_in_radians),         0,          0,
-            -sin(rotate_in_radians),    cos(rotate_in_radians),         0,          0,
-            0,                          0,                              1,          0,
-            0,                          0,                              0,          1
-        );
-        glm::mat4 translation_matrix(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            translation_[0], translation_[1],  translation_[2], 1
-        );
-
-        camera_.set_position_rotation(
-            glm::vec3(camera_pos_[0], camera_pos_[1], camera_pos_[2])
-            , glm::vec3(camera_rot_[0], camera_rot_[1], camera_rot_[2])
-        );
-        camera_.set_projection_mode(
-            (perspective_camera_
-                ? Camera::ProjectionMode::Perspective 
-                : Camera::ProjectionMode::Orthogrphic
-            ) 
-        );
-
-        glm::mat4 transformation_matrix = camera_.get_projection_matrix() * camera_.get_view_matrix() * translation_matrix * rotate_matrix * scale_matrix;
+        glm::mat4 transformation_matrix = cam.get_transform_matrix();
         p_shaders_->set_mat4("transformation_matrix", transformation_matrix);
 
-
         p_vao_->bind();
-        glDrawElements(GL_TRIANGLES, p_vao_->get_num_elements(), GL_UNSIGNED_INT, nullptr);
-        //glDrawArrays(GL_TRIANGLES, 0, 12);
+        for(GLuint i = 0; i < 10; i++)
+        {
+            glm::mat4 model(1);
+            model = glm::translate(model, cubePositions[i]);
+            GLfloat angle = 20.0f * i; 
+            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+            p_shaders_->set_mat4("model", model);
+            
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
-        imguitor_.on_update(
-              scale_
-            , rotate_
-            , translation_
-            , camera_pos_
-            , camera_rot_
-            , perspective_camera_
-        );
+        do_movement();
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
-    
-    yamz_editor::ImGuitor imguitor_;
 
+    void do_movement() noexcept {
+        if (keys_[GLFW_KEY_W])
+            cam.move_forward();
+        if (keys_[GLFW_KEY_S])
+            cam.move_back();
+        if (keys_[GLFW_KEY_A])
+            cam.move_left();
+        if (keys_[GLFW_KEY_D])
+            cam.move_right();
+    }
+
+    yamz_core::Camera2 cam = {SCR_WIDTH, SCR_HEIGHT};
+
+    double lastX_ = static_cast<float>(SCR_WIDTH) / 2.0f;
+    double lastY_ = static_cast<float>(SCR_HEIGHT) / 2.0f;
+
+    bool keys_[1024];
+
+    //yamz_editor::ImGuitor imguitor_;
     std::unique_ptr<yamz_core::ShaderProgram> p_shaders_;
     //std::unique_ptr<VertexBuffer> p_points_vbo;
     //std::unique_ptr<VertexBuffer> p_colors_vbo;
     std::unique_ptr<yamz_core::VertexBuffer> p_pos_colors_vbo_;
     std::unique_ptr<yamz_core::ElementBuffer> p_index_buffer_;
     std::unique_ptr<yamz_core::VertexArray> p_vao_;
-
-    float scale_[3] = {1.f, 1.f, 1.f};
-    float rotate_ = 0.f;
-    float translation_[3] = {0.f, 0.f, 0.f};
-
-    float camera_pos_[3] = {0.f, 0.f, 1.f};
-    float camera_rot_[3] = {0.f, 0.f, 0.f};
-    bool perspective_camera_ = false;
-
-    yamz_core::Camera camera_ = {yamz_core::Camera::ProjectionMode::Orthogrphic};
+    std::unique_ptr<yamz_core::Texture2D> p_texture_;
 };
-
 
 int main() {
     try {
