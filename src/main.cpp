@@ -9,6 +9,8 @@
 constexpr unsigned int SCR_WIDTH = 1920;
 constexpr unsigned int SCR_HEIGHT = 1080;
 
+
+
 constexpr GLfloat vertices[] = {
     // Позиции          // Цвета             // Текстурные координаты
      0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Верхний правый
@@ -183,7 +185,7 @@ class YamzEditor : public yamz_core::Application_GL {
         p_vao_ = std::make_unique<VertexArray>();
         p_vao_->add_buffer(*p_pos_colors_vbo_);
 
-        p_texture_ = std::make_unique<Texture2D>("texture.png", true);
+        p_texture_ = std::make_unique<Texture2D>("../../res/texture/texture.png", true);
         p_texture_->bind(0);
     }
 
